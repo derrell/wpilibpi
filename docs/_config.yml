@@ -1,2 +1,3 @@
 theme: jekyll-theme-slate
-title: WPILib for Raspberry Pi
+title: WPILibPi
+description: A port of WPILib for Raspberry Pi
