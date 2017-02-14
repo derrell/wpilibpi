@@ -5,12 +5,19 @@ package org.wpilibpi.gpio;
  */
 public class GPIOPin {
 
+    public enum GPIOPinState {
+        HIGH,
+        LOW
+    }
+
+
     public final int pin;
 
     public GPIOPin(int pin) {
         this.pin = pin;
     }
 
-    
+
 
 }
+
