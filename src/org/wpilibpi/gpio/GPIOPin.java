@@ -5,7 +5,7 @@ package org.wpilibpi.gpio;
  */
 public class GPIOPin {
 
-    public enum GPIOPinState {
+    public enum PinState {
         HIGH,
         LOW
     }

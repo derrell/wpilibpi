@@ -64,6 +64,7 @@ public class RobotDrive implements MotorSafety {
    * @param leftMotorChannel  The PWM channel number that drives the left motor.
    * @param rightMotorChannel The PWM channel number that drives the right motor.
    */
+  @Deprecated
   public RobotDrive(final int leftMotorChannel, final int rightMotorChannel) {
     m_sensitivity = kDefaultSensitivity;
     m_maxOutput = kDefaultMaxOutput;
@@ -86,6 +87,7 @@ public class RobotDrive implements MotorSafety {
    * @param frontRightMotor Front right motor channel number
    * @param rearRightMotor  Rear Right motor channel number
    */
+  @Deprecated
   public RobotDrive(final int frontLeftMotor, final int rearLeftMotor, final int frontRightMotor,
                     final int rearRightMotor) {
     m_sensitivity = kDefaultSensitivity;
