@@ -10,14 +10,12 @@ public class GPIOPin {
         LOW
     }
 
-
     public final int pin;
 
     public GPIOPin(int pin) {
         this.pin = pin;
     }
 
-
-
+    
 }
 
