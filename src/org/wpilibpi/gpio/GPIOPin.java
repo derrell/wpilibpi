@@ -11,11 +11,15 @@ public class GPIOPin {
     }
 
     public final int pin;
+    private PinState state;
 
     public GPIOPin(int pin) {
         this.pin = pin;
     }
 
-    
+    public PinState getState() {
+        return this.state;
+    }
+
 }
 
