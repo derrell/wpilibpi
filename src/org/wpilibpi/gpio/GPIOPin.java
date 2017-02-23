@@ -21,5 +21,17 @@ public class GPIOPin {
         return this.state;
     }
 
+    public void setState(PinState state) {
+        this.state = state;
+    }
+
+    public void setState(int state) {
+        if (state == 0) {
+            this.state = PinState.LOW;
+        } else if (state == 1) {
+            this.state = PinState.HIGH;
+        }
+    }
+
 }
 
