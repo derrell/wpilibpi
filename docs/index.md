@@ -8,7 +8,7 @@ A port of WPILib to Raspberry Pi. This project is a work in progress and is not 
 
 # Roadmap
 
-- ~~Write GPIO interface ~~
+- ~~Write GPIO interface~~
 - Rewrite the PWM output classes (Java or C)
 - Make Driver Station communication work
 - Rewrite the analog in/out classes
