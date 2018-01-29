@@ -8,12 +8,9 @@ A port of WPILib to Raspberry Pi. This project is a work in progress and is not 
 
 # Roadmap
 
-- ~~Write GPIO interface~~
-- Rewrite the PWM output classes (Java or C)
-- Make Driver Station communication work
-- Rewrite the analog in/out classes
-- Rewrite the digital in/out classes
-- Figure out a way to get CAN working
+- Rewrite a bit of the HAL
+- Make a PCB that puts all the required hardware on one board
+- Figure out a way to get CAN working (then add it to the PCB, not sure which one will come first)
 - Write an installer
 
 As you can see, there's quite a bit to do before this is anywhere near ready. Pull requests would be very helpful!
