@@ -10,7 +10,7 @@
 #include <string>
 
 #include "HAL/cpp/SerialHelper.h"
-#include "visa/visa.h"
+//#include "visa/visa.h"
 
 //static int32_t resourceManagerHandle{0};
 //static HAL_SerialPort portHandles[4];
