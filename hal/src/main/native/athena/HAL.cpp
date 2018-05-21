@@ -22,7 +22,6 @@
 #include <support/mutex.h>
 #include <support/timestamp.h>
 
-#include "HAL/ChipObject.h"
 #include "HAL/DriverStation.h"
 #include "HAL/Errors.h"
 #include "HAL/Notifier.h"
@@ -33,8 +32,8 @@
 
 using namespace hal;
 
-static std::unique_ptr<tGlobal> global;
-static std::unique_ptr<tSysWatchdog> watchdog;
+//static std::unique_ptr<tGlobal> global;
+//static std::unique_ptr<tSysWatchdog> watchdog;
 
 using namespace hal;
 
@@ -81,7 +80,7 @@ extern "C" {
 HAL_PortHandle HAL_GetPort(int32_t channel) {
   // Dont allow a number that wouldn't fit in a uint8_t
   if (channel < 0 || channel >= 255) return HAL_kInvalidHandle;
-  return createPortHandle(channel, 1);
+  return (HAL_PortHandle) 0;
 }
 
 /**
@@ -91,7 +90,7 @@ HAL_PortHandle HAL_GetPortWithModule(int32_t module, int32_t channel) {
   // Dont allow a number that wouldn't fit in a uint8_t
   if (channel < 0 || channel >= 255) return HAL_kInvalidHandle;
   if (module < 0 || module >= 255) return HAL_kInvalidHandle;
-  return createPortHandle(channel, module);
+  return (HAL_PortHandle) 0;
 }
 
 const char* HAL_GetErrorMessage(int32_t code) {
@@ -110,7 +109,7 @@ const char* HAL_GetErrorMessage(int32_t code) {
       return CTR_TxFailed_MESSAGE;
     case CTR_SigNotUpdated:
       return CTR_SigNotUpdated_MESSAGE;
-    case NiFpga_Status_FifoTimeout:
+    /*case NiFpga_Status_FifoTimeout:
       return NiFpga_Status_FifoTimeout_MESSAGE;
     case NiFpga_Status_TransferAborted:
       return NiFpga_Status_TransferAborted_MESSAGE;
@@ -128,6 +127,8 @@ const char* HAL_GetErrorMessage(int32_t code) {
       return NiFpga_Status_HardwareFault_MESSAGE;
     case NiFpga_Status_IrqTimeout:
       return NiFpga_Status_IrqTimeout_MESSAGE;
+    can't have NI errors if you don't use an NI device
+    */
     case SAMPLE_RATE_TOO_HIGH:
       return SAMPLE_RATE_TOO_HIGH_MESSAGE;
     case VOLTAGE_OUT_OF_RANGE:
@@ -172,6 +173,7 @@ const char* HAL_GetErrorMessage(int32_t code) {
       return ERR_CANSessionMux_NotAllowed_MESSAGE;
     case HAL_ERR_CANSessionMux_NotInitialized:
       return ERR_CANSessionMux_NotInitialized_MESSAGE;
+    /*
     case VI_ERROR_SYSTEM_ERROR:
       return VI_ERROR_SYSTEM_ERROR_MESSAGE;
     case VI_ERROR_INV_OBJECT:
@@ -196,6 +198,7 @@ const char* HAL_GetErrorMessage(int32_t code) {
       return VI_ERROR_RSRC_BUSY_MESSAGE;
     case VI_ERROR_INV_PARAMETER:
       return VI_ERROR_INV_PARAMETER_MESSAGE;
+    */
     case HAL_PWM_SCALE_ERROR:
       return HAL_PWM_SCALE_ERROR_MESSAGE;
     case HAL_SERIAL_PORT_NOT_FOUND:
@@ -224,11 +227,7 @@ HAL_RuntimeType HAL_GetRuntimeType(void) { return HAL_Athena; }
  * @return FPGA Version number.
  */
 int32_t HAL_GetFPGAVersion(int32_t* status) {
-  if (!global) {
-    *status = NiFpga_Status_ResourceNotInitialized;
-    return 0;
-  }
-  return global->readVersion(status);
+  return 0;
 }
 
 /**
@@ -240,11 +239,7 @@ int32_t HAL_GetFPGAVersion(int32_t* status) {
  * @return FPGA Revision number.
  */
 int64_t HAL_GetFPGARevision(int32_t* status) {
-  if (!global) {
-    *status = NiFpga_Status_ResourceNotInitialized;
-    return 0;
-  }
-  return global->readRevision(status);
+  return 0;
 }
 
 /**
@@ -254,21 +249,7 @@ int64_t HAL_GetFPGARevision(int32_t* status) {
  * reset).
  */
 uint64_t HAL_GetFPGATime(int32_t* status) {
-  if (!global) {
-    *status = NiFpga_Status_ResourceNotInitialized;
-    return 0;
-  }
-
-  uint64_t upper1 = global->readLocalTimeUpper(status);
-  uint32_t lower = global->readLocalTime(status);
-  uint64_t upper2 = global->readLocalTimeUpper(status);
-  if (*status != 0) return 0;
-  if (upper1 != upper2) {
-    // Rolled over between the lower call, reread lower
-    lower = global->readLocalTime(status);
-    if (*status != 0) return 0;
-  }
-  return (upper2 << 32) + lower;
+  return 0;
 }
 
 /**
@@ -276,27 +257,15 @@ uint64_t HAL_GetFPGATime(int32_t* status) {
  * @return true if the button is currently pressed down
  */
 HAL_Bool HAL_GetFPGAButton(int32_t* status) {
-  if (!global) {
-    *status = NiFpga_Status_ResourceNotInitialized;
-    return false;
-  }
-  return global->readUserButton(status);
+  return false;
 }
 
 HAL_Bool HAL_GetSystemActive(int32_t* status) {
-  if (!watchdog) {
-    *status = NiFpga_Status_ResourceNotInitialized;
-    return false;
-  }
-  return watchdog->readStatus_SystemActive(status);
+  return true;
 }
 
 HAL_Bool HAL_GetBrownedOut(int32_t* status) {
-  if (!watchdog) {
-    *status = NiFpga_Status_ResourceNotInitialized;
-    return false;
-  }
-  return !(watchdog->readStatus_PowerAlive(status));
+  return false;
 }
 
 void HAL_BaseInitialize(int32_t* status) {
@@ -309,11 +278,11 @@ void HAL_BaseInitialize(int32_t* status) {
   // Second check in case another thread was waiting
   if (initialized) return;
   // image 4; Fixes errors caused by multiple processes. Talk to NI about this
-  nFPGA::nRoboRIO_FPGANamespace::g_currentTargetClass =
-      nLoadOut::kTargetClass_RoboRIO;
+  //nFPGA::nRoboRIO_FPGANamespace::g_currentTargetClass =
+  //    nLoadOut::kTargetClass_RoboRIO;
 
-  global.reset(tGlobal::create(status));
-  watchdog.reset(tSysWatchdog::create(status));
+  //global.reset(tGlobal::create(status));
+  //watchdog.reset(tSysWatchdog::create(status));
   initialized = true;
 }
 

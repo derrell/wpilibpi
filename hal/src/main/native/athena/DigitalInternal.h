@@ -14,7 +14,7 @@
 #include <support/mutex.h>
 
 #include "HAL/AnalogTrigger.h"
-#include "HAL/ChipObject.h"
+
 #include "HAL/Ports.h"
 #include "HAL/Types.h"
 #include "HAL/handles/DigitalHandleResource.h"
@@ -59,10 +59,10 @@ constexpr double kDefaultPwmCenter = 1.5;
 constexpr int32_t kDefaultPwmStepsDown = 1000;
 constexpr int32_t kPwmDisabled = 0;
 
-extern std::unique_ptr<tDIO> digitalSystem;
-extern std::unique_ptr<tRelay> relaySystem;
-extern std::unique_ptr<tPWM> pwmSystem;
-extern std::unique_ptr<tSPI> spiSystem;
+//extern std::unique_ptr<tDIO> digitalSystem;
+//extern std::unique_ptr<tRelay> relaySystem;
+//extern std::unique_ptr<tPWM> pwmSystem;
+//extern std::unique_ptr<tSPI> spiSystem;
 
 struct DigitalPort {
   uint8_t channel;

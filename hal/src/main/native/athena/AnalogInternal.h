@@ -13,7 +13,6 @@
 
 #include <support/mutex.h>
 
-#include "HAL/ChipObject.h"
 #include "HAL/Ports.h"
 #include "HAL/handles/IndexedHandleResource.h"
 #include "PortsInternal.h"
@@ -26,14 +25,15 @@ constexpr int32_t kDefaultAverageBits = 7;
 constexpr double kDefaultSampleRate = 50000.0;
 static constexpr uint32_t kAccumulatorChannels[] = {0, 1};
 
-extern std::unique_ptr<tAI> analogInputSystem;
-extern std::unique_ptr<tAO> analogOutputSystem;
+//extern std::unique_ptr<tAI> analogInputSystem;
+//extern std::unique_ptr<tAO> analogOutputSystem;
 extern wpi::mutex analogRegisterWindowMutex;
 extern bool analogSampleRateSet;
 
 struct AnalogPort {
   uint8_t channel;
-  std::unique_ptr<tAccumulator> accumulator;
+  //std::unique_ptr<tAccumulator> accumulator;
+  void * accumulator; // temp?
 };
 
 extern IndexedHandleResource<HAL_AnalogInputHandle, hal::AnalogPort,

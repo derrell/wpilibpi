@@ -13,10 +13,9 @@
 #include <cstdio>
 #include <memory>
 
-#include "HAL/ChipObject.h"
 #include "HAL/HAL.h"
 
-using namespace hal;
+//using namespace hal;
 
 // The 7-bit I2C address with a 0 "send" bit
 static constexpr uint8_t kSendAddress = (0x1c << 1) | 0;
@@ -28,8 +27,8 @@ static constexpr uint8_t kControlTxRx = 1;
 static constexpr uint8_t kControlStart = 2;
 static constexpr uint8_t kControlStop = 4;
 
-static std::unique_ptr<tAccel> accel;
-static HAL_AccelerometerRange accelerometerRange;
+//static std::unique_ptr<tAccel> accel;
+//static HAL_AccelerometerRange accelerometerRange;
 
 // Register addresses
 enum Register {
@@ -78,102 +77,34 @@ enum Register {
 };
 
 namespace hal {
-namespace init {
-void InitializeAccelerometer() {}
-}  // namespace init
+  namespace init {
+    void InitializeAccelerometer() {}
+  }  // namespace init
 }  // namespace hal
 
 namespace hal {
 
-static void writeRegister(Register reg, uint8_t data);
-static uint8_t readRegister(Register reg);
+//static void writeRegister(Register reg, uint8_t data);
+//static uint8_t readRegister(Register reg);
 
 /**
  * Initialize the accelerometer.
  */
-static void initializeAccelerometer() {
-  int32_t status;
+//static void initializeAccelerometer() {
+//}
 
-  if (!accel) {
-    accel.reset(tAccel::create(&status));
+//static void writeRegister(Register reg, uint8_t data) {
+//}
 
-    accelerometerRange = HAL_AccelerometerRange::HAL_AccelerometerRange_k2G;
-
-    // Enable I2C
-    accel->writeCNFG(1, &status);
-
-    // Set the counter to 100 kbps
-    accel->writeCNTR(213, &status);
-
-    // The device identification number should be 0x2a
-    assert(readRegister(kReg_WhoAmI) == 0x2a);
-  }
-}
-
-static void writeRegister(Register reg, uint8_t data) {
-  int32_t status = 0;
-  uint64_t initialTime;
-
-  accel->writeADDR(kSendAddress, &status);
-
-  // Send a start transmit/receive message with the register address
-  accel->writeCNTL(kControlStart | kControlTxRx, &status);
-  accel->writeDATO(reg, &status);
-  accel->strobeGO(&status);
-
-  // Execute and wait until it's done (up to a millisecond)
-  initialTime = HAL_GetFPGATime(&status);
-  while (accel->readSTAT(&status) & 1) {
-    if (HAL_GetFPGATime(&status) > initialTime + 1000) break;
-  }
-
-  // Send a stop transmit/receive message with the data
-  accel->writeCNTL(kControlStop | kControlTxRx, &status);
-  accel->writeDATO(data, &status);
-  accel->strobeGO(&status);
-
-  // Execute and wait until it's done (up to a millisecond)
-  initialTime = HAL_GetFPGATime(&status);
-  while (accel->readSTAT(&status) & 1) {
-    if (HAL_GetFPGATime(&status) > initialTime + 1000) break;
-  }
-}
-
-static uint8_t readRegister(Register reg) {
-  int32_t status = 0;
-  uint64_t initialTime;
-
-  // Send a start transmit/receive message with the register address
-  accel->writeADDR(kSendAddress, &status);
-  accel->writeCNTL(kControlStart | kControlTxRx, &status);
-  accel->writeDATO(reg, &status);
-  accel->strobeGO(&status);
-
-  // Execute and wait until it's done (up to a millisecond)
-  initialTime = HAL_GetFPGATime(&status);
-  while (accel->readSTAT(&status) & 1) {
-    if (HAL_GetFPGATime(&status) > initialTime + 1000) break;
-  }
-
-  // Receive a message with the data and stop
-  accel->writeADDR(kReceiveAddress, &status);
-  accel->writeCNTL(kControlStart | kControlStop | kControlTxRx, &status);
-  accel->strobeGO(&status);
-
-  // Execute and wait until it's done (up to a millisecond)
-  initialTime = HAL_GetFPGATime(&status);
-  while (accel->readSTAT(&status) & 1) {
-    if (HAL_GetFPGATime(&status) > initialTime + 1000) break;
-  }
-
-  return accel->readDATI(&status);
-}
+//static uint8_t readRegister(Register reg) {
+//  return 0;
+//}
 
 /**
  * Convert a 12-bit raw acceleration value into a scaled double in units of
  * 1 g-force, taking into account the accelerometer range.
  */
-static double unpackAxis(int16_t raw) {
+/*static double unpackAxis(int16_t raw) {
   // The raw value is actually 12 bits, not 16, so we need to propogate the
   // 2's complement sign bit to the unused 4 bits for this to work with
   // negative numbers.
@@ -190,7 +121,7 @@ static double unpackAxis(int16_t raw) {
     default:
       return 0.0;
   }
-}
+}*/
 
 }  // namespace hal
 
@@ -201,11 +132,6 @@ extern "C" {
  * mode to change any configuration.
  */
 void HAL_SetAccelerometerActive(HAL_Bool active) {
-  initializeAccelerometer();
-
-  uint8_t ctrlReg1 = readRegister(kReg_CtrlReg1);
-  ctrlReg1 &= ~1;  // Clear the existing active bit
-  writeRegister(kReg_CtrlReg1, ctrlReg1 | (active ? 1 : 0));
 }
 
 /**
@@ -213,13 +139,7 @@ void HAL_SetAccelerometerActive(HAL_Bool active) {
  * The accelerometer should be in standby mode when this is called.
  */
 void HAL_SetAccelerometerRange(HAL_AccelerometerRange range) {
-  initializeAccelerometer();
 
-  accelerometerRange = range;
-
-  uint8_t xyzDataCfg = readRegister(kReg_XYZDataCfg);
-  xyzDataCfg &= ~3;  // Clear the existing two range bits
-  writeRegister(kReg_XYZDataCfg, xyzDataCfg | range);
 }
 
 /**
@@ -228,11 +148,7 @@ void HAL_SetAccelerometerRange(HAL_AccelerometerRange range) {
  * This is a floating point value in units of 1 g-force
  */
 double HAL_GetAccelerometerX(void) {
-  initializeAccelerometer();
-
-  int32_t raw =
-      (readRegister(kReg_OutXMSB) << 4) | (readRegister(kReg_OutXLSB) >> 4);
-  return unpackAxis(raw);
+  return 0.0;
 }
 
 /**
@@ -241,11 +157,7 @@ double HAL_GetAccelerometerX(void) {
  * This is a floating point value in units of 1 g-force
  */
 double HAL_GetAccelerometerY(void) {
-  initializeAccelerometer();
-
-  int32_t raw =
-      (readRegister(kReg_OutYMSB) << 4) | (readRegister(kReg_OutYLSB) >> 4);
-  return unpackAxis(raw);
+  return 0.0;
 }
 
 /**
@@ -254,11 +166,7 @@ double HAL_GetAccelerometerY(void) {
  * This is a floating point value in units of 1 g-force
  */
 double HAL_GetAccelerometerZ(void) {
-  initializeAccelerometer();
-
-  int32_t raw =
-      (readRegister(kReg_OutZMSB) << 4) | (readRegister(kReg_OutZLSB) >> 4);
-  return unpackAxis(raw);
+  return 0.0;
 }
 
 }  // extern "C"
